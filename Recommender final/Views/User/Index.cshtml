@@ -1,0 +1,20 @@
+﻿@using Recommender.Models
+@model List<User>
+@{
+    ViewBag.Title = "UserInfo";
+}
+
+<h2>UserInfo</h2>
+<table class="table">
+
+    <tbody>
+        @foreach (var a in Model)
+        {
+            <tr>
+                <th>@a.ID</th>
+                <th>@a.Name</th>
+            </tr>
+        }
+    </tbody>
+</table>
+

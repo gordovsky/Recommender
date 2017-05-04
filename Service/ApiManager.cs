@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Service
 {
-    public class UserEqualityComparer: IEqualityComparer<User>
+    public class UserEqualityComparer : IEqualityComparer<User>
     {
         public bool Equals(User x, User y)
         {
@@ -24,7 +24,12 @@ namespace Service
         string baseAddress = "ws.audioscrobbler.com/2.0/?";
         //string initialUser = "col403";
         string apiKey = "c10556f6ca630990ddd3f988ba3404c3";
-       
+        Random rnd;
+        public ApiManager()
+        {
+            rnd = new Random();
+        }
+
         public List<User> GetFriends(string initialUser)
         {
             string method = "user.getfriends";
@@ -43,11 +48,25 @@ namespace Service
             return users;
         }
 
+        public List<User> GetUsers(string initialUser)
+        {
+            var users = new HashSet<User>(new UserEqualityComparer());
+            var initialUsers = this.GetFriends(initialUser);
+            users.UnionWith(initialUsers);
+
+            foreach (var u in initialUsers)
+            {
+                users.UnionWith(this.GetFriends(u.name));
+                Console.WriteLine(u.name + ": fetching friends");
+            }
+            return users.ToList();
+        }
+
         public void GetTracks(string userName, int page, List<Track> tracks)
         {
             string method = "user.gettoptracks";
             int pages = 1;
-            string uri = "http://" + baseAddress + "method=" + method + "&" + "user=" + userName + "&api_key=" + apiKey + "&format=json" + "&limit=1000" + "&page=" + page;
+            string uri = "http://" + baseAddress + "method=" + method + "&" + "user=" + userName + "&api_key=" + apiKey + "&format=json" + "&limit=" + rnd.Next(1000) + "&page=" + page ;
             HttpWebRequest request = (HttpWebRequest)WebRequest.Create(uri);
             using (HttpWebResponse response = (HttpWebResponse)request.GetResponse())
             using (Stream stream = response.GetResponseStream())
@@ -59,8 +78,8 @@ namespace Service
                 pages = Int32.Parse(rootObj.toptracks.attr.totalPages);
                 tracks.AddRange(rootObj.toptracks.track);
             }
-            if (page != pages)
-                this.GetTracks(userName, page + 1, tracks);
+            //if (page != pages && page != 2)
+            //    this.GetTracks(userName, page + 1, tracks);
             //return tracks;
         }
         public List<string> GetTags(string artist)
@@ -68,7 +87,7 @@ namespace Service
             string method = "artist.gettoptags";
             List<string> tags = new List<string>();
             //int pages = 1;
-            string uri = "http://" + baseAddress + "method=" + method + "&" + "artist=" + artist.Replace(' ', '+') + "&api_key=" + apiKey + "&format=json" ;
+            string uri = "http://" + baseAddress + "method=" + method + "&" + "artist=" + artist.Replace(' ', '+') + "&api_key=" + apiKey + "&format=json";
             HttpWebRequest request = (HttpWebRequest)WebRequest.Create(uri);
             using (HttpWebResponse response = (HttpWebResponse)request.GetResponse())
             using (Stream stream = response.GetResponseStream())

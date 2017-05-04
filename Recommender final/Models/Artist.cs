@@ -12,5 +12,6 @@ namespace Recommender.Models
         public int ID { get; set; }
         public string Name { get; set; }
         public virtual ICollection<Artist_Tag> Artist_tags { get; set; }
+        public virtual ICollection<ArtistSimilarToArtist> SimilarArtists { get; set; }
     }
 }

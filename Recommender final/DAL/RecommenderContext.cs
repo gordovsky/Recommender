@@ -15,10 +15,25 @@ namespace Recommender_final.DAL
         public DbSet<Artist> Artists { get; set; }
         public DbSet<Track> Tracks { get; set; }
         public DbSet<Scrobble> Scrobbles { get; set; }
+        public DbSet<ArtistSimilarToArtist> ArtistToArtist { get; set; }
+        public DbSet<UserToUser> UserToUser { get; set; }
 
         protected override void OnModelCreating(DbModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
+            modelBuilder.Entity<ArtistSimilarToArtist>()
+                .HasRequired(c => c.Artist1).WithMany()
+                .WillCascadeOnDelete(false);
+            modelBuilder.Entity<ArtistSimilarToArtist>()
+                .HasRequired(c => c.Artist2).WithMany()
+                .WillCascadeOnDelete(false);
+
+            modelBuilder.Entity<UserToUser>()
+                .HasRequired(c => c.User1).WithMany()
+                .WillCascadeOnDelete(false);
+            modelBuilder.Entity<UserToUser>()
+                .HasRequired(c => c.User2).WithMany()
+                .WillCascadeOnDelete(false);
         }
     }
 }
